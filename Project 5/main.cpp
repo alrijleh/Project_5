@@ -44,6 +44,87 @@ struct EdgeProperties
 
 typedef adjacency_list<vecS, vecS, bidirectionalS, VertexProperties, EdgeProperties> Graph;
 
+void clearVisited(Graph &g)
+{
+	pair<Graph::vertex_iterator, Graph::vertex_iterator> vItrRange = vertices(g);
+	for (Graph::vertex_iterator vItr = vItrRange.first; vItr != vItrRange.second; ++vItr)
+	{
+		g[*vItr].visited = false;
+	}
+}
+
+//Looks for path from start to goal using DFS using a stack not recursion
+void findPathDFSStack(Graph &g)
+{
+	clearVisited(g);
+	pair<Graph::vertex_iterator, Graph::vertex_iterator> vItrRange = vertices(g);
+	Graph::vertex_iterator vItr = vItrRange.first;
+	stack<Graph::vertex_descriptor> &stack;
+	stack.push(*vItr);
+	g[*vItr].visited = true;
+	while (stack.size() != 0)
+	{
+		Graph::vertex_descriptor v = stack.top();
+		pair<Graph::adjacency_iterator, Graph::adjacency_iterator> vItrAdjRange = adjacent_vertices(v, g);
+		for (Graph::adjacency_iterator w = vItrAdjRange.first; w != vItrAdjRange.second; w++)
+		{
+			if (g[*w].visited == false)
+			{
+				g[*w].visited = true;
+				stack.push(*w);
+			}
+			else
+			{
+				stack.pop();
+			}
+		}
+	}
+}
+
+bool isConnected(Graph &g)
+{
+	findPathDFSStack(g);
+	pair<Graph::vertex_iterator, Graph::vertex_iterator> vItrRange = vertices(g);
+	for (Graph::vertex_iterator vItr = vItrRange.first; vItr != vItrRange.second; ++vItr)
+	{
+		if (g[*vItr].visited == false) return false;
+	}
+	return true;
+}
+
+//Modified from DFSStack
+bool isCyclic(Graph &g)
+{
+	clearVisited(g);
+	pair<Graph::vertex_iterator, Graph::vertex_iterator> vItrRange = vertices(g);
+	Graph::vertex_iterator vItr = vItrRange.first;
+	stack<Graph::vertex_descriptor> &stack;
+	stack.push(*vItr);
+	g[*vItr].visited = true;
+	while (stack.size() != 0)
+	{
+		Graph::vertex_descriptor v = stack.top();
+		pair<Graph::adjacency_iterator, Graph::adjacency_iterator> vItrAdjRange = adjacent_vertices(v, g);
+		for (Graph::adjacency_iterator w = vItrAdjRange.first; w != vItrAdjRange.second; w++)
+		{
+			if (g[*w].visited == false) //whether or not to visit
+			{
+				g[*w].visited = true;
+				g[*w].pred = v;
+				stack.push(*w);
+			}
+			else if (g[*w].pred != v)
+			{
+				return true;
+			}
+			else
+			{
+				stack.pop();
+			}
+		}
+	}
+}
+
 void initializeGraph(Graph &g,
                      Graph::vertex_descriptor &start,
                      Graph::vertex_descriptor &end, ifstream &fin)
