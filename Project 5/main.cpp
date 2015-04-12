@@ -1,3 +1,8 @@
+/*
+Project 5a
+Main.cpp
+Fouad Al-Rijleh, Rachel Rudolph
+*/
 
 #include <iostream>
 #include <limits.h>
@@ -222,8 +227,8 @@ int main()
       
       findSpanningForest(g,sf);
       
-      cout << "Spanning forest weight: " << totalEdgeWeight(sf)/2 << endl;
-      cout << endl;
+      //cout << "Spanning forest weight: " << totalEdgeWeight(sf)/2 << endl;
+      //cout << endl;
       
       cout << "Calling isConnected" << endl;
       connected = isConnected(sf);
