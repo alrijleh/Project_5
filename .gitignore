@@ -1,0 +1,64 @@
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Visual Studio Files
+*.[Oo]bj
+*.user
+*.aps
+*.pch
+*.vspscc
+*.vssscc
+*.idb
+*_i.c
+*_p.c
+*.ncb
+*.suo
+*.tlb
+*.tlh
+*.bak
+*.[Cc]ache
+*.ilk
+*.log
+*.tlog
+*.lib
+*.sbr
+*.sdf
+*.opensdf
+*.unsuccessfulbuild
+*.pdb
+*.suo
+*.sdf
+*.lastcodeanalys*
+*.xml
+*.psess
+*.vsp
+*.vcxproj*
+
+#Boost Directory
+boost_1_57_0/
