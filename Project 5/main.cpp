@@ -64,7 +64,7 @@ void findPathDFSStack(Graph &g)
 	clearVisited(g);
 	pair<Graph::vertex_iterator, Graph::vertex_iterator> vItrRange = vertices(g);
 	Graph::vertex_iterator vItr = vItrRange.first;
-	stack<Graph::vertex_descriptor> &stack;
+	stack<Graph::vertex_descriptor> stack;
 	stack.push(*vItr);
 	g[*vItr].visited = true;
 	while (stack.size() != 0)
@@ -103,7 +103,7 @@ bool isCyclic(Graph &g)
 	clearVisited(g);
 	pair<Graph::vertex_iterator, Graph::vertex_iterator> vItrRange = vertices(g);
 	Graph::vertex_iterator vItr = vItrRange.first;
-	stack<Graph::vertex_descriptor> &stack;
+	stack<Graph::vertex_descriptor> stack;
 	stack.push(*vItr);
 	g[*vItr].visited = true;
 	while (stack.size() != 0)
@@ -225,7 +225,7 @@ int main()
       // Initialize an empty graph to contain the spanning forest
       Graph sf(num_vertices(g));
       
-      findSpanningForest(g,sf);
+      //findSpanningForest(g,sf);
       
       //cout << "Spanning forest weight: " << totalEdgeWeight(sf)/2 << endl;
       //cout << endl;
