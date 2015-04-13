@@ -58,6 +58,32 @@ void clearVisited(Graph &g)
 	}
 }
 
+//Looks for shortest path from start to goal using BFS
+void findShortestPathBFS(Graph &g)
+{
+	clearVisited(g);
+	queue<Graph::vertex_descriptor> queue;
+	pair<Graph::vertex_iterator, Graph::vertex_iterator> vItrRange = vertices(g);
+	Graph::vertex_iterator vItr = vItrRange.first;
+	queue.push(*vItr);
+	g[*vItr].visited = true;
+	while (queue.size() != 0)
+	{
+		Graph::vertex_descriptor v = queue.front();
+		pair<Graph::adjacency_iterator, Graph::adjacency_iterator> vItrAdjRange = adjacent_vertices(v, g);
+		for (Graph::adjacency_iterator w = vItrAdjRange.first; w != vItrAdjRange.second; w++)
+		{
+			if (g[*w].visited == false)
+			{
+				g[*w].visited = true;
+				queue.push(*w);
+			}
+		}
+		queue.pop();
+	}
+}
+
+
 //Looks for path from start to goal using DFS using a stack not recursion
 void findPathDFSStack(Graph &g)
 {
@@ -90,7 +116,8 @@ bool isConnected(Graph &g)
 {
 	if (num_vertices(g) == 0) return false;
 
-	findPathDFSStack(g);
+	findShortestPathBFS(g);
+	//findPathDFSStack(g);
 	pair<Graph::vertex_iterator, Graph::vertex_iterator> vItrRange = vertices(g);
 	for (Graph::vertex_iterator vItr = vItrRange.first; vItr != vItrRange.second; ++vItr)
 	{
@@ -153,9 +180,50 @@ bool isCyclic(Graph &g)
 	return false;
 }
 
+void findSpanningTree(Graph &g, pair<Graph::vertex_iterator, Graph::vertex_iterator> vItrRange, Graph &sf)
+{
+	if (num_vertices(g) == 0) return;
+
+	Graph::vertex_iterator vItr = vItrRange.first;
+	stack<Graph::vertex_descriptor> stack;
+	stack.push(*vItr);
+	g[*vItr].visited = true;
+	while (stack.size() != 0)
+	{
+		Graph::vertex_descriptor v = stack.top();
+		pair<Graph::adjacency_iterator, Graph::adjacency_iterator> vItrAdjRange = adjacent_vertices(v, g);
+		for (Graph::adjacency_iterator w = vItrAdjRange.first; w != vItrAdjRange.second; w++)
+		{
+			if (g[*w].visited == false) //whether or not to visit
+			{
+				g[*w].visited = true;
+				g[*w].pred = v;
+				stack.push(*w);
+				add_edge(*w, v, sf);
+				add_edge(v, *w, sf);
+			}
+			else
+			{
+				stack.pop();
+			}
+		}
+	}
+	return;
+}
+
 void findSpanningForest(Graph &g, Graph &sf)
 {
-
+	clearVisited(g);
+	pair<Graph::vertex_iterator, Graph::vertex_iterator> vItrRange = vertices(g);
+	for (Graph::vertex_iterator vItr = vItrRange.first; vItr != vItrRange.second; ++vItr)
+	{
+		if (g[*vItr].visited == false)
+		{
+			vItrRange.first = vItr;
+			findSpanningTree(g, vItrRange, sf);
+		}
+	}
+	return;
 }
 
 void initializeGraph(Graph &g,
@@ -253,8 +321,12 @@ int main()
       // Initialize an empty graph to contain the spanning forest
       Graph sf(num_vertices(g));
       
-      //findSpanningForest(g,sf);
+      findSpanningForest(g,sf);
       
+	  cout << "Num nodes: " << num_vertices(sf) << endl;
+	  cout << "Num edges: " << num_edges(sf) << endl;
+	  cout << endl;
+
       //cout << "Spanning forest weight: " << totalEdgeWeight(sf)/2 << endl;
       //cout << endl;
       
