@@ -49,6 +49,7 @@ struct EdgeProperties
 
 typedef adjacency_list<vecS, vecS, bidirectionalS, VertexProperties, EdgeProperties> Graph;
 
+//Unvisits all nodes in g
 void clearVisited(Graph &g)
 {
 	pair<Graph::vertex_iterator, Graph::vertex_iterator> vItrRange = vertices(g);
@@ -112,6 +113,7 @@ void findPathDFSStack(Graph &g)
 	}
 }
 
+//true if connected graph - else false
 bool isConnected(Graph &g)
 {
 	if (num_vertices(g) == 0) return false;
@@ -126,7 +128,7 @@ bool isConnected(Graph &g)
 	return true;
 }
 
-//Modified from DFSStack - returns true if a sub_cycle is found
+//Modified from DFSStack - true if a sub_cycle is found
 bool subCycle(Graph &g, pair<Graph::vertex_iterator, Graph::vertex_iterator> vItrRange)
 {
 	if (num_vertices(g) == 0) return false;
@@ -162,6 +164,7 @@ bool subCycle(Graph &g, pair<Graph::vertex_iterator, Graph::vertex_iterator> vIt
 	return false;
 }
 
+//true if graph contains a cycle
 bool isCyclic(Graph &g)
 {
 	clearVisited(g);
@@ -180,6 +183,7 @@ bool isCyclic(Graph &g)
 	return false;
 }
 
+//creates a spanning tree of g in graph sf - called multiple times by findSpanningForest
 void findSpanningTree(Graph &g, pair<Graph::vertex_iterator, Graph::vertex_iterator> vItrRange, Graph &sf)
 {
 	if (num_vertices(g) == 0) return;
@@ -211,6 +215,7 @@ void findSpanningTree(Graph &g, pair<Graph::vertex_iterator, Graph::vertex_itera
 	return;
 }
 
+//creates a spanning forest of graph g in graph sf
 void findSpanningForest(Graph &g, Graph &sf)
 {
 	clearVisited(g);
