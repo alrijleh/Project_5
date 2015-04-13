@@ -88,6 +88,8 @@ void findPathDFSStack(Graph &g)
 
 bool isConnected(Graph &g)
 {
+	if (num_vertices(g) == 0) return false;
+
 	findPathDFSStack(g);
 	pair<Graph::vertex_iterator, Graph::vertex_iterator> vItrRange = vertices(g);
 	for (Graph::vertex_iterator vItr = vItrRange.first; vItr != vItrRange.second; ++vItr)
@@ -97,11 +99,11 @@ bool isConnected(Graph &g)
 	return true;
 }
 
-//Modified from DFSStack
-bool isCyclic(Graph &g)
+//Modified from DFSStack - returns true if a sub_cycle is found
+bool subCycle(Graph &g, pair<Graph::vertex_iterator, Graph::vertex_iterator> vItrRange)
 {
-	clearVisited(g);
-	pair<Graph::vertex_iterator, Graph::vertex_iterator> vItrRange = vertices(g);
+	if (num_vertices(g) == 0) return false;
+	
 	Graph::vertex_iterator vItr = vItrRange.first;
 	stack<Graph::vertex_descriptor> stack;
 	stack.push(*vItr);
@@ -118,8 +120,10 @@ bool isCyclic(Graph &g)
 				g[*w].pred = v;
 				stack.push(*w);
 			}
-			else if (g[*w].pred != v)
+			else if (g[v].pred != *w && v != *vItrRange.first)
 			{
+				Graph::vertex_descriptor W = *w;
+				Graph::vertex_descriptor start = *vItrRange.first;
 				return true;
 			}
 			else
@@ -128,6 +132,30 @@ bool isCyclic(Graph &g)
 			}
 		}
 	}
+	return false;
+}
+
+bool isCyclic(Graph &g)
+{
+	clearVisited(g);
+	pair<Graph::vertex_iterator, Graph::vertex_iterator> vItrRange = vertices(g);
+	for (Graph::vertex_iterator vItr = vItrRange.first; vItr != vItrRange.second; ++vItr)
+	{
+		if (g[*vItr].visited == false)
+		{
+			vItrRange.first = vItr;
+			if (subCycle(g, vItrRange))
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+void findSpanningForest(Graph &g, Graph &sf)
+{
+
 }
 
 void initializeGraph(Graph &g,
@@ -171,7 +199,7 @@ int main()
    // Read the name of the graph from the keyboard or
    // hard code it here for testing.
    
-   fileName = "";
+   fileName = "graph1.txt";
    
    //   cout << "Enter filename" << endl;
    //   cin >> fileName;
