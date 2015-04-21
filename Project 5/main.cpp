@@ -325,7 +325,7 @@ void mstPrim(Graph &g, Graph &sf, Graph::vertex_descriptor start)
 	{
 		add_edge(i, j, sf);
 		add_edge(j, i, sf);
-		g[j].visited == true;
+		g[j].visited = true;
 	}
 }
 
