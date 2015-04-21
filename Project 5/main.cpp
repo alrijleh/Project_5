@@ -306,18 +306,20 @@ void mstPrim(Graph &g, Graph &sf, Graph::vertex_descriptor start)
 	for (Graph::vertex_iterator u = vItrRange.first; u != vItrRange.second; ++u)
 	{
 		if (g[*u].visited == true)
-			for (Graph::vertex_iterator v = vItrRange.first; v != vItrRange.second; v++)
+		{
+			pair<Graph::adjacency_iterator, Graph::adjacency_iterator> vItrAdjRange = adjacent_vertices(*u, g);
+			for (Graph::adjacency_iterator v = vItrAdjRange.first; v != vItrAdjRange.second; v++)
 			{
 				if (g[*v].visited == false)
 				{
 					//current edge goes from marked u to unmarked v
 					currentPair = edge(*u, *v, g);
 					currentEdge = currentPair.first;
-					if (currentPair.second == true //if valid edge
-						&& g[currentEdge].weight < g[cheapestEdge].weight)
+					if (g[currentEdge].weight < g[cheapestEdge].weight)
 						cheapestEdge = currentEdge;
 				}
 			}
+		}
    }
 	Graph::vertex_descriptor i = source(cheapestEdge, g);
 	Graph::vertex_descriptor j = target(cheapestEdge, g);
