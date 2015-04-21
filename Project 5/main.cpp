@@ -319,12 +319,12 @@ void initializeGraph(Graph &g,
 }
 
 //returns true if Prim's algorithm can add an edge
-bool primEdge(Graph &g, Graph &sf)
+bool primEdge(Graph &g, Graph &sf, heapV<Graph::vertex_descriptor, Graph> priorityQueue)
 {
-	//g[start].visited = true;
 	pair<Graph::edge_descriptor, bool> currentPair;
+	Graph::vertex_descriptor vertex;
 	pair<Graph::vertex_iterator, Graph::vertex_iterator> vItrRange = vertices(g);
-	Graph::edge_descriptor cheapestEdge, currentEdge, tempEdge;
+	Graph::edge_descriptor cheapestEdge, currentEdge, tempEdge, newEdge;
 	tempEdge = add_edge(*vItrRange.first, *vItrRange.first, g).first; //adds a false edge with a huge weight
 	g[tempEdge].weight = LargeValue;
 	currentEdge = tempEdge; //initialize current edge
@@ -336,14 +336,13 @@ bool primEdge(Graph &g, Graph &sf)
 			pair<Graph::adjacency_iterator, Graph::adjacency_iterator> vItrAdjRange = adjacent_vertices(*u, g);
 			for (Graph::adjacency_iterator v = vItrAdjRange.first; v != vItrAdjRange.second; v++)
 			{
-			Graph::vertex_descriptor V = *v;
 				//current edge goes from marked u to unmarked v
 				currentPair = edge(*u, *v, g);
 				currentEdge = currentPair.first;
 				if (g[currentEdge].weight < g[cheapestEdge].weight && g[*v].visited == false)
 				{
 					cheapestEdge = currentEdge;
-					cout << g[currentEdge].weight;
+					vertex = priorityQueue.getItem(0);
 				}
 			}
 		}
@@ -352,8 +351,10 @@ bool primEdge(Graph &g, Graph &sf)
 	Graph::vertex_descriptor j = target(cheapestEdge, g);
 	if (edge(i, j, sf).second == false && cheapestEdge != tempEdge)
 	{
-		add_edge(i, j, sf);
-		add_edge(j, i, sf);
+		newEdge = add_edge(i, j, sf).first;
+		sf[newEdge].weight = g[cheapestEdge].weight;
+		newEdge = add_edge(j, i, sf).first;
+		sf[newEdge].weight = g[cheapestEdge].weight;
 		g[j].visited = true;
 		return true;
 	}
@@ -363,11 +364,13 @@ bool primEdge(Graph &g, Graph &sf)
 void msfPrim(Graph &g, Graph &sf)
 {
 	clearVisited(g);
+	heapV<Graph::vertex_descriptor, Graph> priorityQueue;
+	priorityQueue.initializeMinHeap(g);
 	pair<Graph::vertex_iterator, Graph::vertex_iterator> vItrRange = vertices(g);
 	g[*vItrRange.first].visited = true;
 	while (isVisited(g) == false)
 	{
-		if (!primEdge(g, sf))
+		if (!primEdge(g, sf, priorityQueue))
 		{
 			visitUnvisited(g);
 		}
@@ -447,8 +450,8 @@ int main()
 	  cout << sf << endl;
 	  cout << endl;
 
-      //cout << "Spanning forest weight: " << totalEdgeWeight(sf)/2 << endl;
-      //cout << endl;
+      cout << "Spanning forest weight: " << totalEdgeWeight(sf)/2 << endl;
+      cout << endl;
       
       cout << "Calling isConnected" << endl;
       connected = isConnected(sf);
