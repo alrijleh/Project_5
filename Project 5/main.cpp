@@ -297,7 +297,9 @@ void initializeGraph(Graph &g,
 
 void mstPrim(Graph &g, Graph &sf, Graph::vertex_descriptor start)
 {
-	queue<Graph::edge_descriptor> queue;
+	priority_queue<Graph::edge_descriptor> queue;
+	heapV<Graph::edge_descriptor, Graph> heap;
+	heap.initializeMinHeap(g);
 	g[start].visited = true;
 	pair<Graph::edge_descriptor, bool> currentPair;
 	Graph::edge_descriptor cheapestEdge, currentEdge;
@@ -318,6 +320,7 @@ void mstPrim(Graph &g, Graph &sf, Graph::vertex_descriptor start)
 						currentPair = edge(*u, *v, g);
 						currentEdge = currentPair.first;
 						queue.push(currentEdge);
+						heap.minHeapDecreaseKey(*v, g);
 						//if (currentPair.second == true //if valid edge
 						//	&& g[currentEdge].weight < g[cheapestEdge].weight)
 						//	cheapestEdge = currentEdge;
@@ -325,14 +328,15 @@ void mstPrim(Graph &g, Graph &sf, Graph::vertex_descriptor start)
 				}
 		}
 		queue.pop();
-		/*Graph::vertex_descriptor i = source(cheapestEdge, g);
+		cheapestEdge = queue.top();
+		Graph::vertex_descriptor i = source(cheapestEdge, g);
 		Graph::vertex_descriptor j = target(cheapestEdge, g);
 		if (edge(i, j, sf).second == false)
 		{
 			add_edge(i, j, sf);
 			add_edge(j, i, sf);
 			g[j].visited == true;
-		}*/
+		}
 	}
 
 }
