@@ -86,6 +86,29 @@ void clearVisited(Graph &g)
 	}
 }
 
+bool isVisited(Graph &g)
+{
+	pair<Graph::vertex_iterator, Graph::vertex_iterator> vItrRange = vertices(g);
+	for (Graph::vertex_iterator vItr = vItrRange.first; vItr != vItrRange.second; ++vItr)
+	{
+		if (g[*vItr].visited == false) return false;
+	}
+	return true;
+}
+
+void visitUnvisited(Graph &g)
+{
+	pair<Graph::vertex_iterator, Graph::vertex_iterator> vItrRange = vertices(g);
+	for (Graph::vertex_iterator vItr = vItrRange.first; vItr != vItrRange.second; ++vItr)
+	{
+		if (g[*vItr].visited == false)
+		{
+			g[*vItr].visited = true;
+			return;
+		}
+	}
+}
+
 //Looks for shortest path from start to goal using BFS
 void findShortestPathBFS(Graph &g)
 {
@@ -295,14 +318,17 @@ void initializeGraph(Graph &g,
 	}
 }
 
-void mstPrim(Graph &g, Graph &sf, Graph::vertex_descriptor start)
+//returns true if Prim's algorithm can add an edge
+bool primEdge(Graph &g, Graph &sf)
 {
-	g[start].visited = true;
+	//g[start].visited = true;
 	pair<Graph::edge_descriptor, bool> currentPair;
-	Graph::edge_descriptor cheapestEdge, currentEdge;
-	currentEdge = *edges(g).first; //initialize current edge to first edge -- doesnt matter which
-	cheapestEdge = *edges(g).first; //initialize cheapest edge to first edge -- doesnt matter which
 	pair<Graph::vertex_iterator, Graph::vertex_iterator> vItrRange = vertices(g);
+	Graph::edge_descriptor cheapestEdge, currentEdge, tempEdge;
+	tempEdge = add_edge(*vItrRange.first, *vItrRange.first, g).first; //adds a false edge with a huge weight
+	g[tempEdge].weight = LargeValue;
+	currentEdge = tempEdge; //initialize current edge
+	cheapestEdge = tempEdge; //initialize cheapest edge
 	for (Graph::vertex_iterator u = vItrRange.first; u != vItrRange.second; ++u)
 	{
 		if (g[*u].visited == true)
@@ -310,36 +336,40 @@ void mstPrim(Graph &g, Graph &sf, Graph::vertex_descriptor start)
 			pair<Graph::adjacency_iterator, Graph::adjacency_iterator> vItrAdjRange = adjacent_vertices(*u, g);
 			for (Graph::adjacency_iterator v = vItrAdjRange.first; v != vItrAdjRange.second; v++)
 			{
-				if (g[*v].visited == false)
+			Graph::vertex_descriptor V = *v;
+				//current edge goes from marked u to unmarked v
+				currentPair = edge(*u, *v, g);
+				currentEdge = currentPair.first;
+				if (g[currentEdge].weight < g[cheapestEdge].weight && g[*v].visited == false)
 				{
-					//current edge goes from marked u to unmarked v
-					currentPair = edge(*u, *v, g);
-					currentEdge = currentPair.first;
-					if (g[currentEdge].weight < g[cheapestEdge].weight)
-						cheapestEdge = currentEdge;
+					cheapestEdge = currentEdge;
+					cout << g[currentEdge].weight;
 				}
 			}
 		}
    }
 	Graph::vertex_descriptor i = source(cheapestEdge, g);
 	Graph::vertex_descriptor j = target(cheapestEdge, g);
-	if (edge(i, j, sf).second == false)
+	if (edge(i, j, sf).second == false && cheapestEdge != tempEdge)
 	{
 		add_edge(i, j, sf);
 		add_edge(j, i, sf);
 		g[j].visited = true;
+		return true;
 	}
+	return false;
 }
 
 void msfPrim(Graph &g, Graph &sf)
 {
 	clearVisited(g);
 	pair<Graph::vertex_iterator, Graph::vertex_iterator> vItrRange = vertices(g);
-	for (Graph::vertex_iterator vItr = vItrRange.first; vItr != vItrRange.second; ++vItr)
+	g[*vItrRange.first].visited = true;
+	while (isVisited(g) == false)
 	{
-		if (g[*vItr].visited == false)
+		if (!primEdge(g, sf))
 		{
-			mstPrim(g, sf, *vItr);
+			visitUnvisited(g);
 		}
 	}
 	return;
