@@ -47,6 +47,33 @@ struct EdgeProperties
    bool marked;
 };
 
+//Output operator for the Graph class. Prints out all nodes and their properties, 
+//and all edges and their properties.
+ostream &operator<<(ostream &ostr, const Graph &g)
+{
+	pair<Graph::vertex_iterator, Graph::vertex_iterator> vItrRange = vertices(g);
+	for (Graph::vertex_iterator vItr = vItrRange.first; vItr != vItrRange.second; ++vItr)
+	{
+
+		ostr << "Node " << *vItr;
+		//ostr << " | Marked: " << g[*vItr].marked;
+		ostr << " | Visited: " << g[*vItr].visited << endl;
+	}
+	cout << endl;
+
+	pair<Graph::edge_iterator, Graph::edge_iterator> eItrRange = edges(g);
+	for (Graph::edge_iterator eItr = eItrRange.first; eItr != eItrRange.second; ++eItr)
+	{
+
+		ostr << "Edge " << *eItr;
+		//ostr << " | Marked: " << g[*eItr].marked;
+		ostr << " | Visited: " << g[*eItr].visited << endl;
+		//ostr << "Weight: " << g[*eItr].weight << endl << endl;
+	}
+
+	return ostr;
+}
+
 typedef adjacency_list<vecS, vecS, bidirectionalS, VertexProperties, EdgeProperties> Graph;
 
 //Unvisits all nodes in g
@@ -268,10 +295,9 @@ void initializeGraph(Graph &g,
 	}
 }
 
-void msfPrim(Graph &g, Graph &sf)
+void mstPrim(Graph &g, Graph &sf, Graph::vertex_descriptor start)
 {
-	clearVisited(g);
-	g[0].visited = true;
+	g[start].visited = true;
 	pair<Graph::edge_descriptor, bool> currentPair;
 	Graph::edge_descriptor cheapestEdge, currentEdge;
 	currentEdge = *edges(g).first; //initialize current edge to first edge -- doesnt matter which
@@ -280,24 +306,41 @@ void msfPrim(Graph &g, Graph &sf)
 	for (Graph::vertex_iterator u = vItrRange.first; u != vItrRange.second; ++u)
 	{
 		if (g[*u].visited == true)
-			for (Graph::vertex_iterator v = vItrRange.first; v != vItrRange.second; ++v)
+			for (Graph::vertex_iterator v = vItrRange.first; v != vItrRange.second; v++)
 			{
 				if (g[*v].visited == false)
 				{
 					//current edge goes from marked u to unmarked v
 					currentPair = edge(*u, *v, g);
 					currentEdge = currentPair.first;
-					if (currentPair.second == true
-						&& g[currentEdge].weight <= g[cheapestEdge].weight)
+					if (currentPair.second == true //if valid edge
+						&& g[currentEdge].weight < g[cheapestEdge].weight)
 						cheapestEdge = currentEdge;
 				}
 			}
-		Graph::vertex_descriptor i = source(currentEdge, g);
-		Graph::vertex_descriptor j = target(currentEdge, g);
+   }
+	Graph::vertex_descriptor i = source(cheapestEdge, g);
+	Graph::vertex_descriptor j = target(cheapestEdge, g);
+	if (edge(i, j, sf).second == false)
+	{
 		add_edge(i, j, sf);
 		add_edge(j, i, sf);
 		g[j].visited == true;
-   }
+	}
+}
+
+void msfPrim(Graph &g, Graph &sf)
+{
+	clearVisited(g);
+	pair<Graph::vertex_iterator, Graph::vertex_iterator> vItrRange = vertices(g);
+	for (Graph::vertex_iterator vItr = vItrRange.first; vItr != vItrRange.second; ++vItr)
+	{
+		if (g[*vItr].visited == false)
+		{
+			mstPrim(g, sf, *vItr);
+		}
+	}
+	return;
 }
 
 int main()
@@ -368,7 +411,8 @@ int main()
 		msfPrim(g, sf);
       
 	  cout << "Num nodes: " << num_vertices(sf) << endl;
-	  cout << "Num edges: " << num_edges(sf) << endl;
+	  cout << "Num edges: " << num_edges(sf)/2 << endl;
+	  cout << sf << endl;
 	  cout << endl;
 
       //cout << "Spanning forest weight: " << totalEdgeWeight(sf)/2 << endl;
@@ -403,4 +447,5 @@ int main()
 
 	system("pause");
 }
+
 
